@@ -4,6 +4,6 @@ app = Flask(__name__)  # <== This line defines the `app` object
 
 @app.route('/')
 def home():
-    return 'Hello from Render!'
+    return 'Welcome to the AI world!'
 
 
