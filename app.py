@@ -1,13 +1,11 @@
-def add(a, b):
-    return a + b
+from flask import Flask
 
-def subtract(a, b):
-    return a - b
+app = Flask(__name__)  # <--- this line defines the `app` that gunicorn looks for
 
-def divide(a, b):
-    if b == 0:
-        raise ValueError("Cannot divide by zero")
-    return a / b
+@app.route('/')
+def hello():
+    return 'Hello from Flask on Render!'
+
 
 
 
