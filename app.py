@@ -1,23 +1,27 @@
+from flask import Flask
+from dotenv import load_dotenv
+import os
 import logging
-from flask import Flask, request
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+load_dotenv()  # Load variables from .env
+
+logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
 
-# Automatically log every route access
-@app.before_request
-def log_request_info():
-    logging.info(f"Route accessed: {request.method} {request.path} | IP: {request.remote_addr}")
-
 @app.route('/')
-def hello():
-    return 'Hello from Flask on Render!'
+def home():
+    logging.info("Home route accessed")
+    return "Hello from Flask!"
 
-@app.route('/new')
-def new_route():
-    return 'This is a new route for auto-deployment test!'
+@app.route('/secret')
+def secret():
+    secret_msg = os.getenv("SECRET_MESSAGE", "No secret found")
+    return f"Secret message: {secret_msg}"
+
+if __name__ == "__main__":
+    app.run(debug=True)
+
 
 
 
