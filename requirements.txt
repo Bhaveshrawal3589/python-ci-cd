@@ -1,4 +1,7 @@
 flask
-gunicorn
-pytest
+flask_sqlalchemy
+flask_login
 python-dotenv
+gunicorn
+werkzeug
+pytest
