@@ -102,13 +102,21 @@ def view_messages():
     output += "</ul>"
     return output
 
-# --- CREATE TABLES on startup ---
+# --- CREATE TABLES on startup and test DB connection ---
 @app.before_first_request
 def create_tables():
-    db.create_all()
+    try:
+        db.create_all()
+        test_msg = Message(content="Database connection test")
+        db.session.add(test_msg)
+        db.session.commit()
+        logging.info(f"✅ Database connected and test message added with ID {test_msg.id}")
+    except Exception as e:
+        logging.error(f"❌ Database connection failed: {e}")
 
 # Production use - do not use debug=True on Render
 if __name__ == "__main__":
     app.run()
+
 
 
