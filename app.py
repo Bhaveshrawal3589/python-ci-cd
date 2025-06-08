@@ -15,12 +15,8 @@ app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "fallback-secret-key")
 
 # --- DATABASE CONFIGURATION ---
-# Use DATABASE_URL from .env for PostgreSQL connection
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
-# Disable modification tracking to save resources
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
-# Initialize SQLAlchemy with the app
 db = SQLAlchemy(app)
 
 # --- FLASK-LOGIN setup ---
@@ -29,19 +25,17 @@ login_manager.init_app(app)
 login_manager.login_view = "login"
 
 # --- DATABASE MODEL ---
-# Example simple model to store messages
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.String(256), nullable=False)
 
-# Dummy user setup (unchanged)
+# Dummy user setup
 class User(UserMixin):
     def __init__(self, id):
         self.id = id
         self.name = "testuser"
         self.password = "password"
 
-# One hardcoded user
 users = {"testuser": User("1")}
 
 @login_manager.user_loader
@@ -49,7 +43,6 @@ def load_user(user_id):
     return users.get("testuser") if user_id == "1" else None
 
 # --- ROUTES ---
-
 @app.route('/')
 def home():
     logging.info("Home route accessed")
@@ -91,16 +84,31 @@ def logout():
     logout_user()
     return redirect(url_for('home'))
 
-# --- NEW: Route to test database ---
+# --- NEW: Route to add a message ---
 @app.route('/add-message')
 def add_message():
     msg = Message(content="This is a test message.")
     db.session.add(msg)
     db.session.commit()
-    return f"Message with ID {msg.id} added!"
+    return f"✅ Message with ID {msg.id} added!"
 
+# --- NEW: Route to view messages ---
+@app.route('/messages')
+def view_messages():
+    messages = Message.query.all()
+    output = "<h2>Stored Messages:</h2><ul>"
+    for msg in messages:
+        output += f"<li>{msg.id}: {msg.content}</li>"
+    output += "</ul>"
+    return output
+
+# --- CREATE TABLES on startup ---
+@app.before_first_request
+def create_tables():
+    db.create_all()
+
+# Production use - do not use debug=True on Render
 if __name__ == "__main__":
-    app.run(debug=True)
-    
+    app.run()
 
 
